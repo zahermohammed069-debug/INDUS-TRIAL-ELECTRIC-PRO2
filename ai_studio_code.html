@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>INDUSTRIAL ELECTRIC PRO | Électricité Industrielle & Automatismes</title>
+  <meta name="description" content="Application PWA complète d'apprentissage et d'intervention en électricité industrielle, schémas, moteurs, automates et diagnostic avec explications en Darija." />
+  <meta name="theme-color" content="#0a192f" />
+  
+  <!-- Manifeste PWA inline -->
+  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22INDUSTRIAL%20ELECTRIC%20PRO%22%2C%22short_name%22%3A%22ElecPro%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23081226%22%2C%22theme_color%22%3A%22%230a192f%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%3E%3Crect%20width%3D'100'%20height%3D'100'%20rx%3D'20'%20fill%3D'%230a192f'%2F%3E%3Cpath%20d%3D'M55%2010L25%2055h25l-10%2035%2035-45H50z'%20fill%3D'%2300e5ff'%2F%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D" />
+
+  <style>
+    :root {
+      --bg-dark: #070e1c;
+      --bg-card: #0d1e38;
+      --bg-card-hover: #142a4d;
+      --navy-border: #1d3557;
+      --electric-blue: #00e5ff;
+      --accent-blue: #2563eb;
+      --accent-glow: rgba(0, 229, 255, 0.2);
+      --safety-orange: #f59e0b;
+      --danger-red: #ef4444;
+      --success-green: #10b981;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --darija-gold: #fbbf24;
+      --font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-stack);
+      line-height: 1.6;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Layout Responsive */
+    #sidebar {
+      width: 320px;
+      background-color: #081427;
+      border-right: 1px solid var(--navy-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+      z-index: 100;
+    }
+
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+      background: radial-gradient(circle at 90% 10%, rgba(0, 229, 255, 0.05), transparent 40%);
+    }
+
+    /* Header */
+    header {
+      background-color: rgba(13, 30, 56, 0.95);
+      backdrop-filter: blur(8px);
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--navy-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .brand-title span { color: var(--electric-blue); }
+
+    .nav-search {
+      padding: 0.8rem;
+      border-bottom: 1px solid var(--navy-border);
+    }
+    .search-input {
+      width: 100%;
+      background: var(--bg-dark);
+      border: 1px solid var(--navy-border);
+      color: #fff;
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--electric-blue); box-shadow: 0 0 8px var(--accent-glow); }
+
+    /* Modules List */
+    .modules-list {
+      flex: 1;
+      overflow-y: auto;
+      list-style: none;
+      padding: 0.5rem;
+    }
+    .module-item {
+      padding: 0.75rem 0.9rem;
+      margin-bottom: 0.35rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      color: #cbd5e1;
+    }
+    .module-item:hover {
+      background: var(--bg-card);
+      border-color: rgba(0, 229, 255, 0.3);
+      color: #fff;
+    }
+    .module-item.active {
+      background: var(--bg-card-hover);
+      border-color: var(--electric-blue);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 2px 10px rgba(0, 229, 255, 0.15);
+    }
+    .badge-check {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid var(--text-muted);
+      font-size: 10px;
+    }
+    .badge-check.completed {
+      background: var(--success-green);
+      border-color: var(--success-green);
+      color: #000;
+      font-weight: bold;
+    }
+
+    /* Mobile toggle */
+    .menu-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* Content Area */
+    .content-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      width: 100%;
+    }
+
+    /* Cards & Components */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    .card h2 {
+      color: var(--electric-blue);
+      font-size: 1.4rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card h3 {
+      color: #fff;
+      font-size: 1.1rem;
+      margin: 1.2rem 0 0.5rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.3rem;
+    }
+
+    /* Danger / Safety Alert Box */
+    .safety-alert {
+      background: rgba(239, 68, 68, 0.12);
+      border-left: 4px solid var(--danger-red);
+      padding: 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+      display: flex;
+      gap: 0.8rem;
+      align-items: flex-start;
+    }
+    .safety-alert .icon { font-size: 1.5rem; }
+
+    /* Darija / Arabic explanation card */
+    .darija-box {
+      background: rgba(251, 191, 36, 0.08);
+      border-right: 4px solid var(--darija-gold);
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+      direction: rtl;
+      text-align: right;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .darija-title {
+      color: var(--darija-gold);
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .darija-text {
+      color: #fef3c7;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    /* Interactive circuit SVG */
+    .schematic-viewer {
+      background: #040914;
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      margin: 1rem 0;
+      overflow-x: auto;
+    }
+    svg text { font-family: monospace; font-size: 11px; fill: #cbd5e1; }
+    .wire { stroke: #64748b; stroke-width: 2; fill: none; transition: stroke 0.3s; }
+    .wire.active { stroke: #00e5ff; filter: drop-shadow(0 0 3px #00e5ff); }
+    .switch-contact { cursor: pointer; transition: 0.2s; }
+
+    /* Calculator inputs */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .input-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+    .input-group input, .input-group select {
+      width: 100%;
+      background: var(--bg-dark);
+      border: 1px solid var(--navy-border);
+      color: #fff;
+      padding: 0.6rem;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+    .btn {
+      background: var(--accent-blue);
+      color: #fff;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      border-radius: 5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #1d4ed8; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--electric-blue);
+      color: var(--electric-blue);
+    }
+    .btn-outline:hover {
+      background: rgba(0, 229, 255, 0.1);
+    }
+    .calc-result {
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid var(--electric-blue);
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+    .calc-result h4 { color: var(--electric-blue); margin-bottom: 0.3rem; }
+
+    /* Quiz styling */
+    .quiz-option {
+      background: var(--bg-dark);
+      border: 1px solid var(--navy-border);
+      padding: 0.8rem 1rem;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .quiz-option:hover { border-color: var(--electric-blue); }
+    .quiz-option.correct { background: rgba(16, 185, 129, 0.2); border-color: var(--success-green); }
+    .quiz-option.wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger-red); }
+
+    /* Interactive Simulator */
+    .sim-step {
+      background: var(--bg-dark);
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 0.8rem;
+      border-left: 3px solid var(--electric-blue);
+    }
+
+    /* Overall Progress Bar */
+    .progress-bar-container {
+      background: var(--bg-dark);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 0.5rem 0 1rem 0;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--electric-blue));
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Mobile media query */
+    @media (max-width: 860px) {
+      #sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 20px rgba(0,0,0,0.7);
+      }
+      #sidebar.open {
+        transform: translateX(0);
+      }
+      .menu-btn { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Latérale -->
+  <aside id="sidebar">
+    <div style="padding: 1.2rem; border-bottom: 1px solid var(--navy-border); display: flex; align-items: center; justify-content: space-between;">
+      <div class="brand-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <span>ELEC</span> PRO
+      </div>
+      <button class="menu-btn" onclick="toggleSidebar()" aria-label="Fermer Menu">✕</button>
+    </div>
+
+    <!-- Barre de progression -->
+    <div style="padding: 0.8rem 1rem 0.2rem 1rem;">
+      <div style="display:flex; justify-content:space-between; font-size:0.75rem; color: var(--text-muted);">
+        <span>Progression Globale</span>
+        <span id="global-progress-text">0%</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="global-progress-bar"></div>
+      </div>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="module-search" class="search-input" placeholder="Rechercher (ex: variateur, étoile, LOTO)..." oninput="filterModules()" />
+    </div>
+
+    <ul class="modules-list" id="modules-list">
+      <!-- Généré dynamiquement en JS -->
+    </ul>
+
+    <div style="padding: 0.8rem; border-top: 1px solid var(--navy-border); font-size: 0.72rem; color: var(--text-muted); text-align: center;">
+      100% Hors-Ligne & Conforme Normes NFC 15-100 / IEC 60947
+    </div>
+  </aside>
+
+  <!-- Zone Principale de Travail -->
+  <div id="main-content">
+    <header>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="menu-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+        <div>
+          <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--electric-blue); font-weight: bold; letter-spacing: 1px;" id="current-category">MODULE</span>
+          <h1 style="font-size: 1.1rem; color: #fff; margin-top: 2px;" id="current-title">Chargement...</h1>
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="markModuleCompleted()">
+          <span id="complete-btn-text">✓ Marquer comme Lu</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-container" id="content-display">
+      <!-- Le contenu dynamique sera injecté ici -->
+    </main>
+  </div>
+
+  <script>
+    /* =======================================================================
+       BASE DE CONNAISSANCES COMPLÈTE : 10 MODULES INDUSTRIELS
+       ======================================================================= */
+    const modulesData = [
+      {
+        id: "mod-1",
+        title: "1. Bases de l'Électricité Industrielle",
+        category: "Fondamentaux",
+        content: `
+          <div class="card">
+            <h2>⚡ Fondamentaux & Réseau Triphasé</h2>
+            <p>En milieu industriel, l'alimentation standard est le réseau <strong>Triphasé 400V + Neutre (50Hz)</strong>. Contrairement au secteur domestique (230V monophasé), le triphasé offre un couple constant aux moteurs et minimise la section des conducteurs.</p>
+            
+            <div class="safety-alert">
+              <span class="icon">⚠️</span>
+              <div>
+                <strong>Avertissement Danger Mortel (400V) :</strong>
+                La tension composée de 400V entre deux phases provoque un arrêt cardiaque immédiat ou des brûlures internes sévères en cas de contact direct. Le port des gants isolants classe 00/0 (500V/1000V) et écran facial est impératif.
+              </div>
+            </div>
+
+            <div class="darija-box">
+              <div class="darija-title">💡 الشرح بالدارجة المغربية (Triciti & Courant Triphasé)</div>
+              <div class="darija-text">
+                فالمعامل والوزينات كنخدمو بـ <strong>التريفيزي (Triphasé 400V)</strong> حينت الماطر الكبار كيحتاجو طاقة و كوپلاژ صحيح.
+                الريزو فيه 3 د الفازات (L1, L2, L3) ونوتر (N).
+                إيلا عبرتي بين فاز وفاز بالـ Multimètre كتلقى <strong>400V (Tension composée U)</strong>.
+                وإيلا عبرتي بين أي فاز والنوتر كتلقى <strong>230V (Tension simple V)</strong>.
+                النوتر كيوازن الشارج، ولاطير (Terre) كيحمي الخدامة من الصعقة إيلا قاس شي خيط لاماصل ديال الكاركاس.
+              </div>
+            </div>
+
+            <h3>Grandeurs Électriques Clés</h3>
+            <ul style="margin-left: 1.5rem; line-height: 1.8;">
+              <li><strong>Puissance Active ($P$) en Watts (W/kW) :</strong> $P = \sqrt{3} \times U \times I \times \cos\varphi$ (l'énergie transformée en travail mécanique/chaleur).</li>
+              <li><strong>Puissance Réactive ($Q$) en VAR (kVAR) :</strong> $Q = \sqrt{3} \times U \times I \times \sin\varphi$ (magnétisation des bobines moteurs/transfos).</li>
+              <li><strong>Facteur de Puissance ($\cos\varphi$) :</strong> Doit rester supérieur à 0.92 pour éviter les pénalités de dépassement réactif délivrées par le distributeur d'énergie (ONEE / Lydec / Redal).</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "mod-2",
+        title: "2. Schémas et Symboles Électriques",
+        category: "Schémas de Câblage",
+        content: `
+          <div class="card">
+            <h2>📐 Lecture de Schémas & Circuit Démarrage Direct</h2>
+            <p>Un schéma industriel se divise toujours en deux parties hermétiques : le circuit de <strong>Puissance</strong> (fort courant, conducteurs de grosse section) et le circuit de <strong>Commande</strong> (basse tension ou 230V, faible courant 1.5mm²).</p>
+            
+            <h3>Simulateur Interactif de Câblage Commande</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Cliquez sur le bouton "Marche (S2)" ou "Arrêt (S1)" ci-dessous pour observer la fermeture de la bobine KM1 et son auto-maintien (13-14).</p>
+
+            <div class="schematic-viewer">
+              <svg width="340" height="240" viewBox="0 0 340 240" style="background:#0a1324; border-radius:6px;">
+                <!-- Rails Ph / N -->
+                <line x1="20" y1="20" x2="320" y2="20" stroke="#f59e0b" stroke-width="2"/>
+                <text x="25" y="15">Phase 230V</text>
+                <line x1="20" y1="220" x2="320" y2="220" stroke="#00e5ff" stroke-width="2"/>
+                <text x="25" y="235">Neutre (N)</text>
+
+                <!-- Ligne principale -->
+                <line x1="80" y1="20" x2="80" y2="50" class="wire active"/>
+                
+                <!-- Arrêt d'urgence S0 (NC) -->
+                <circle cx="80" cy="50" r="3" fill="#cbd5e1"/>
+                <line x1="80" y1="50" x2="80" y2="70" class="wire active"/>
+                <text x="90" y="65">AU / S0 (NC)</text>
+                
+                <!-- Bouton Arrêt S1 (NC) -->
+                <circle cx="80" cy="70" r="3" fill="#cbd5e1"/>
+                <line id="s1-line" x1="80" y1="70" x2="80" y2="100" class="wire active"/>
+                <text x="90" y="90">Arrêt S1 (NC)</text>
+
+                <!-- Bouton Marche S2 (NO) en // avec 13-14 -->
+                <circle cx="80" cy="100" r="3" fill="#cbd5e1"/>
+                <!-- Branche S2 -->
+                <line id="s2-contact" x1="80" y1="100" x2="70" y2="135" stroke="#ef4444" stroke-width="2"/>
+                <line x1="80" y1="140" x2="80" y2="170" class="wire" id="wire-coil-in"/>
+                <text x="15" y="125">Marche S2 (NO)</text>
+
+                <!-- Maintien 13-14 KM1 -->
+                <line x1="80" y1="100" x2="160" y2="100" class="wire active"/>
+                <line id="km1-maintien" x1="160" y1="100" x2="150" y2="135" stroke="#64748b" stroke-width="2"/>
+                <line x1="160" y1="140" x2="160" y2="150" class="wire" id="wire-maintien-out"/>
+                <line x1="160" y1="150" x2="80" y2="150" class="wire" id="wire-maintien-join"/>
+                <text x="170" y="125">KM1 (13-14)</text>
+
+                <!-- Bobine KM1 (A1-A2) -->
+                <rect id="coil-box" x="65" y="170" width="30" height="25" fill="#1e293b" stroke="#cbd5e1" stroke-width="2"/>
+                <text x="70" y="187" fill="#fff" font-weight="bold">KM1</text>
+                <line x1="80" y1="195" x2="80" y2="220" class="wire active"/>
+              </svg>
+
+              <div style="margin-top: 10px; display: flex; justify-content: center; gap: 10px;">
+                <button class="btn" style="background:#10b981; font-size:0.85rem;" onclick="simulateCircuit('start')">Poussoir Marche (S2)</button>
+                <button class="btn" style="background:#ef4444; font-size:0.85rem;" onclick="simulateCircuit('stop')">Poussoir Arrêt (S1)</button>
+              </div>
+            </div>
+
+            <div class="darija-box">
+              <div class="darija-title">💡 الشرح بالدارجة : سر الأوتومانسيان (Auto-maintien 13-14)</div>
+              <div class="darija-text">
+                ملي كتورك على Bouton Poussoir "Marche"، كدوز التريسينتي لـ <strong>A1-A2</strong> ديال البوبينة (Bobine).
+                الكونتاكتور كيتكولا (s'enclenche)، وفي نفس الوقت كيسد الكونتاكت المساعد <strong>13-14 (NO)</strong>.
+                ملي كتحيد صبعك على البوطونة، الضو كايبقى دايز عبر داك 13-14، هاد العملية هي لي كنسميوها <strong>Auto-maintien</strong>.
+                بلا بيها، غير تطلق صبعك، الموطور يسكت!
+              </div>
+            </div>
+
+            <h3>Repérage Normalisé des Bornes (Norme EN 50005)</h3>
+            <ul style="margin-left: 1.5rem; line-height: 1.8;">
+              <li><strong>13 - 14 :</strong> Contact Normalement Ouvert (NO) utilisé pour l'auto-maintien.</li>
+              <li><strong>21 - 22 :</strong> Contact Normalement Fermé (NC) utilisé pour le verrouillage électrique de sécurité (ex: inversion de sens).</li>
+              <li><strong>95 - 96 :</strong> Contact NC de sécurité du relais thermique (coupe la commande en cas de surcharge).</li>
+              <li><strong>97 - 98 :</strong> Contact NO signalisation défaut (allume le voyant orange clignotant au pupitre).</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "mod-3",
+        title: "3. Moteurs et Procédés de Démarrage",
+        category: "Actionneurs",
+        content: `
+          <div class="card">
+            <h2>⚙️ Moteur Asynchrone Triphasé (MAS)</h2>
+            <p>Le moteur à cage d'écureuil est le moteur le plus robuste de l'industrie. Le choix du couplage (Étoile $\\text{Y}$ ou Triangle $\\Delta$) dépend strictement des tensions indiquées sur la <strong>plaque signalétique</strong> et de la tension du réseau.</p>
+            
+            <div class="darija-box">
+              <div class="darija-title">💡 الشرح بالدارجة : قراءة البلاكة والكوبلاج (Étoile ولا Triangle)</div>
+              <div class="darija-text">
+                شوف ديما أصغر طونسيون فالبلاكة ديال الموطور:
+                إيلا لقيتي <strong>230V / 400V</strong> والريزو ديال المعمل 400V، خاصك تكوبليه <strong>Étoile (Y)</strong> (باريتات أفقية) باش كل أونغولمون ياخد 230V وميتحرقش!
+                إيلا لقيتي فالبلاكة <strong>400V / 690V</strong> والريزو 400V، هنا كدير <strong>Triangle (Δ)</strong> (3 د الباريتات واقفين) باش ياخد عزم (Couple) قوي.
+              </div>
+            </div>
+
+            <h3>Comparatif des Démarreurs Standards</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 0.8rem; font-size: 0.85rem;">
+              <thead>
+                <tr style="background: var(--bg-dark); border-bottom: 2px solid var(--electric-blue); text-align: left;">
+                  <th style="padding: 8px;">Démarrage</th>
+                  <th style="padding: 8px;">Courant d'appel ($I_d / I_n$)</th>
+                  <th style="padding: 8px;">Couple ($C_d / C_n$)</th>
+                  <th style="padding: 8px;">Application recommandée</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--navy-border);">
+                  <td style="padding: 8px; font-weight:bold; color:var(--electric-blue);">Direct (DOL)</td>
+                  <td style="padding: 8px; color:var(--danger-red);">4 à 8 $I_n$</td>
+                  <td style="padding: 8px;">1.5 à 2 $C_n$</td>
+                  <td style="padding: 8px;">Petits moteurs (&lt; 5.5 kW), compresseurs légers.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--navy-border);">
+                  <td style="padding: 8px; font-weight:bold; color:var(--electric-blue);">Étoile - Triangle</td>
+                  <td style="padding: 8px; color:var(--safety-orange);">1.5 à 2.6 $I_n$</td>
+                  <td style="padding: 8px; color:var(--safety-orange);">0.5 $C_n$ (faible)</td>
+                  <td style="padding: 8px;">Ventilateurs industriels, démarrage à vide.</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; font-weight:bold; color:var(--electric-blue);">Démarreur Progressif</td>
+                  <td style="padding: 8px; color:var(--success-green);">2 à 3 $I_n$ paramétrable</td>
+                  <td style="padding: 8px;">Progressif et contrôlé</td>
+                  <td style="padding: 8px;">Pompes hydrauliques (suppression coup de bélier).</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `
+      },
+      {
+        id: "mod-4",
+        title: "4. Contacteurs, Relais et Protections",
+        category: "Appareillage BT",
+        content: `
+          <div class="card">
+            <h2>🛡️ Coordination et Protection des Départs-Moteurs</h2>
+            <p>La protection d'un départ moteur industriel s'appuie sur la norme <strong>IEC 60947-4-1</strong> et doit assurer 4 fonctions vitales : le sectionnement, la commande, la protection contre les surcharges, et la protection contre les courts-circuits.</p>
+
+            <div class="darija-box">
+              <div class="darija-title">💡 الشرح بالدارجة : الفرق بين السيرشارج (Surcharge) والكور-سيركوي (Court-circuit)</div>
+              <div class="darija-text">
+                <strong>1. لا سيرشارج (Surcharge) :</strong> الموطور مبلوكي بشي بياسة ميكانيك أو كيهز ثقل كثر من القياس. كيسخن بشوية بشوية. هنا كيديكلونشي <strong>الرولي تيرميك (Relais Thermique)</strong> بفضل البي-لام (Bilame).
+                <br>
+                <strong>2. الكور-سيركوي (Court-circuit) :</strong> فاز تلاقى مع فاز ولا مع لاماص. الكوران كيطلع لآلاف الأمبيرات فجزء من الثانية. هنا كيطيح <strong>المانيتيك (Magnétique)</strong> ولا كيطرطق الفوزيبل aM قبل ما يتشوط الخيط.
+              </div>
+            </div>
+
+            <h3>Appareils Indispensables</h3>
+            <ul style="margin-left: 1.5rem; line-height: 1.8;">
+              <li><strong>Disjoncteur Moteur (Magnéto-thermique, ex: GV2 TeSys Schneider) :</strong> Combine la protection magnétique instantanée (13 x $I_n$) et thermique réglable. Il protège aussi contre le <em>manque de phase</em>.</li>
+              <li><strong>Contacteur de Ligne (ex: LC1D) :</strong> Permet d'établir et d'interrompre le courant à distance sous de fortes cadences (pouvoir de coupure élevé avec chambres de soufflage d'arc).</li>
+              <li><strong>Fusibles Type aM (Accompagnement Moteur) :</strong> Ne coupent pas sur la pointe de courant de démarrage du moteur, mais fondent immédiatement en court-circuit.</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "mod-5",
+        title: "5. Automates Programmables (PLC / API)",
+        category: "Automatismes",
+        content: `
+          <div class="card">
+            <h2>💻 Architecture API : Siemens S7-1200 & Schneider M221</h2>
+            <p>L'Automate Programmable Industriel (API) remplace les relais électromécaniques par un traitement numérique cyclique : <strong>Lecture Entrées -> Exécution Programme -> Écriture Sorties</strong>.</p>
+            
+            <div class="darija-box">
+              <div class="darija-title">💡 الشرح بالدارجة : كيفاش كيفكر لوطومات (PLC / Automate)</div>
+              <div class="darija-text">
+                لوطومات كيتلقى إشارات من لي كاپتور (Capteurs, Fin de course, Boutons) فـ <strong>Les Entrées (%I0.0)</strong>، البروسيسور كيطبق الكود لي كتبتي ليه (غالباً بلونڭاج LADDER لي كيشبه للشيمات ديال التريسينتي)، ومن بعد كيعطي الأمر للكونتاكتورات والروليات عبر <strong>Les Sorties (%Q0.0)</strong>.
+              </div>
+            </div>
+
+            <h3>Structure LADDER Fondamentale</h3>
+            <div class="schematic-viewer" style="text-align:left; font-family: monospace; font-size:13px; line-height: 2;">
+              |--[ %I0.0 ]----+----[ / %I0.1 ]----( %Q0.0 )--|<br>
+              |  (Marche NO)  |    (Arrêt NC)     (Bobine KM1) |<br>
+              |--[ %Q0.0 ]----+                                |<br>
+              |  (Maintien)   |                                |
+            </div>
+
+            <h3>Comparatif Plateformes Usine</h3>
+            <ul style="margin-left: 1.5rem; line-height: 1.8;">
+              <li><strong>Siemens (TIA Portal V16/V18) :</strong> S7-1200 / S7-1500. Variables typées, DB (Data Blocks), communication Profinet native standardisée.</li>
+              <li><strong>Schneider Electric (EcoStruxure Machine Expert - Basic) :</strong> Modicon M221 / M241. Adressage direct (%M pour bits internes, %MW pour mots entiers, %TM pour tempos).</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "mod-6",
+        title: "6. Variateurs de Fréquence (VFD / Inverters)",
+        category: "Variation de Vitesse",
+        content: `
+          <div class="card">
+            <h2>🔄 Fonctionnement & Paramétrage (Altivar / Sinamics)</h2>
+            <p>La vitesse de rotation synchrone d'un moteur asynchrone est fixée par : $N_s = \frac{60 \times f}{p}$. Le variateur module la fréquence $f$ (0 à 50/60 Hz) tout en maintenant le rapport $\frac{U}{f}$ constant pour garantir le couple maximal nominal à n'importe quelle vitesse.</p>
+
+            <div class="darija-box">
+              <div class="darija-title">💡 الشرح بالدارجة : الباراميتراج ديال الفاريياتور (Altivar ATV320)</div>
+              <div class="darija-text">
+                الفاريياتور كياخد 50Hz كيحولها لـ Courant Continu (DC) عبر Redresseur، ومن بعد كيعاود يصنع تريسينتي بتردد كيتحكم فيه (PWM).
+                ملي كتركب فاريياتور جديد، أول حاجة كتدخل مينيو الموطور <strong>DRC / Motor parameters</strong> :
+                - <strong>bFr :</strong> التردد الأساسي (50 Hz).<br>
+                - <strong>UnS :</strong> الطونسيون النيمينال (400V).<br>
+                - <strong>nCr :</strong> الأمبير ديال الموطور $I_n$ (كتنقلو من بلاكة الموطور باش يحميه تيرميكياً).<br>
+                - <strong>ACC / dEC :</strong> وقت الإقلاع والتوقف بالثواني (Temps d'accélération / décélération).
+              </div>
+            </div>
+
+            <h3>Défauts Variateurs Fréquents & Actions</h3>
+            <ul style="margin-left: 1.5rem; line-height: 1.8;">
+              <li><strong>OCF (Overcurrent / Surintensité) :</strong> Blocage mécanique ou court-circuit sortie moteur. Vérifier l'isolement moteur au mégohmmètre.</li>
+              <li><strong>OHF (Overheat / Surchauffe radiateur) :</strong> Ventilateur interne encrassé ou filtre d'armoire colmaté.</li>
+              <li><strong>USF (Undervoltage / Sous-tension) :</strong> Baisse de tension réseau amont ou fusion fusible amont.</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "mod-7",
+        title: "7. Diagnostic Méthodique de Pannes",
+        category: "Dépannage Usine",
+        content: `
+          <div class="card">
+            <h2>🔍 Arbre Décisionnel & Outil Interactif de Dépannage</h2>
+            <p>Un bon technicien ne remplace pas une pièce au hasard : il procède par élimination en respectant la méthode <strong>Symptôme -> Hypothèse -> Mesure (Multimètre) -> Correction</strong>.</p>
+            
+            <div class="calc-grid" style="margin-top: 1rem;">
+              <div class="input-group">
+                <label>Sélectionnez le symptôme constaté sur la machine :</label>
+                <select id="fault-selector" onchange="runFaultDiagnosis()">
+                  <option value="">-- Choisir un symptôme usine --</option>
+                  <option value="humming">Le moteur grogne bruyamment mais ne tourne pas</option>
+                  <option value="thermal-trip">Le relais thermique déclenche après 5 à 15 minutes</option>
+                  <option value="coil-dead">Appui sur S2 : rien ne se passe (KM1 ne colle pas)</option>
+                  <option value="motor-smoke">Odeur de brûlé et disjonction instantanée à la mise en marche</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="fault-result-box" class="sim-step" style="display: none;"></div>
+
+            <div class="darija-box" style="margin-top: 1.5rem;">
+              <div class="darija-title">💡 الشرح بالدارجة : تكنيك الديپاناج بـ Multimètre</div>
+              <div class="darija-text">
+                فاش تكون كتديباني فالبوبينة ديال الكونتاكتور لي مابغاتش تكولي:
+                حط الخيط الكحل فـ <strong>A2 (Neutre)</strong>، وبالخيط الأحمر تبع الفاز من السيركوي من الفوق لتحت:
+                خروج الديجونكتور -> كونتاكت 95-96 ديال التيرميك -> لاري دورجونس -> بوطون داري -> بوطون مارش -> A1.
+                البلاصة لي غاتعبر فيها وتلقى <strong>0V</strong> فبلاصت <strong>230V</strong>، عرف بلي البياسة لي قبل منها مقطوعة ولا البوطونة مهرسة!
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: "mod-8",
+        title: "8. Maintenance et Sécurité LOTO (Consignation)",
+        category: "Sécurité & Habilitation",
+        content: `
+          <div class="card">
+            <h2>🔒 Procédure de Consignation Électrique en 5 Étapes</h2>
+            <p>Toute intervention corrective ou préventive impose la consignation stricte pour éviter tout risque de réarmement intempestif ou choc en retour (NF C 18-510).</p>
+
+            <div class="safety-alert">
+              <span class="icon">⛔</span>
+              <div>
+                <strong>RÈGLE D'OR : Jamais de travail sans VAT vérifiée !</strong>
+                Le multimètre numérique standard N'EST PAS un appareil de VAT agréé. Vous devez obligatoirement utiliser un Détecteur Vérificateur d'Absence de Tension normalisé testé immédiatement avant et après mesure sur une source connue.
+              </div>
+            </div>
+
+            <div class="darija-box">
+              <div class="darija-title">💡 الشرح بالدارجة : المراحل الخمسة للكونسينياسيون (LOTO Cadenassage)</div>
+              <div class="darija-text">
+                باش تخدم فشي ماشينة بأمان وما يجيش شي واحد يعاود يرجع الضو وتوقع كارثة:
+                1. <strong>Séparation :</strong> قطع السيكسيونور ولا الديجونكتور القاطع العام.<br>
+                2. <strong>Condamnation (Cadenassage) :</strong> قفل المفتاح بالكادنا (Cadenas personnel) ودير البلاكارت الصفرا ديال "ممنوع التشغيل - أشغال جارية". الساروت كيبقى فجيبك بوحدك!<br>
+                3. <strong>VAT (Vérification d'absence de tension) :</strong> قيس بالـ VAT بين الفازات والأرضي وتأكد باللي زيرو ڤولط.<br>
+                4. <strong>MALT et C/C :</strong> دير لاماص فلي كابل إيلا كانت موايان طونسيون.<br>
+                5. <strong>Balisage :</strong> دور الفران شريط التحذير على بلاصة الخدمة.
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: "mod-9",
+        title: "9. Calculs Électriques Industriels",
+        category: "Calculateurs",
+        content: `
+          <div class="card">
+            <h2>🧮 Calculateur de Dimensionnement Départ-Moteur & Câble</h2>
+            <p>Calculez automatiquement l'intensité nominale $I_n$, le calibre du disjoncteur et la section de câble minimale préconisée selon la chute de tension admissible (&lt; 3%).</p>
+
+            <div class="calc-grid">
+              <div class="input-group">
+                <label>Puissance Moteur P (kW) :</label>
+                <input type="number" id="calc-power" value="7.5" step="0.1" />
+              </div>
+              <div class="input-group">
+                <label>Tension Composée U (V) :</label>
+                <input type="number" id="calc-volt" value="400" />
+              </div>
+              <div class="input-group">
+                <label>Facteur de puissance (cos φ) :</label>
+                <input type="number" id="calc-cos" value="0.85" step="0.01" />
+              </div>
+              <div class="input-group">
+                <label>Rendement estimé (η) :</label>
+                <input type="number" id="calc-eff" value="0.88" step="0.01" />
+              </div>
+              <div class="input-group">
+                <label>Longueur de ligne L (mètres) :</label>
+                <input type="number" id="calc-length" value="45" />
+              </div>
+            </div>
+
+            <button class="btn" onclick="computeElectricalCalculations()">Calculer les Équipements</button>
+
+            <div id="calc-output" class="calc-result" style="display:none;"></div>
+
+            <div class="darija-box" style="margin-top: 1.5rem;">
+              <div class="darija-title">💡 الشرح بالدارجة : علاش كنحسبو لاشيت دو طونسيون (Chute de tension) ؟</div>
+              <div class="darija-text">
+                إيلا كان الكابل طويل بزاف (مثلاً بومبا د البير ولا موطور بعيد بـ 80 ميطرو على لآرموار)، التريسينتي كتضيع فالطريق بسبب مقاومة النحاس.
+                إيلا درتي كابل رقيق، الموطور غاتوصلو 370V فبلاصت 400V، غايولي يطلب كوران كثر وغايسخن ويتحرق! داكشي علاش كنزيدو فـ <strong>Section du câble (mm²)</strong>.
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: "mod-10",
+        title: "10. Quiz et Entraînement Technique",
+        category: "Évaluation",
+        content: `
+          <div class="card">
+            <h2>📝 Évaluation des Compétences Électrotechniques</h2>
+            <p>Répondez aux questions d'atelier pour valider vos connaissances opérationnelles. Score enregistré dans la mémoire locale.</p>
+
+            <div id="quiz-wrapper" style="margin-top: 1rem;">
+              <!-- Injecté par script JS -->
+            </div>
+            
+            <div id="quiz-summary" style="display:none; margin-top: 1rem; padding: 1rem; border-radius: 6px; background: rgba(0,229,255,0.1); border:1px solid var(--electric-blue);"></div>
+          </div>
+        `
+      }
+    ];
+
+    /* Questions pour le Quiz */
+    const quizQuestions = [
+      {
+        q: "1. Sur la plaque d'un moteur asynchrone alimenté en réseau 400V, on lit '230V / 400V'. Quel couplage devez-vous réaliser ?",
+        options: [
+          "Couplage Triangle (Δ)",
+          "Couplage Étoile (Y)",
+          "Les deux sont possibles indifféremment",
+          "Couplage série avec neutre"
+        ],
+        correct: 1,
+        explainFr: "La plus petite tension indiquée (230V) correspond à la tension max supportée par chaque enroulement. Le réseau délivrant 400V entre phases, il faut coupler en Étoile pour avoir 230V aux bornes de chaque bobine.",
+        explainDarija: "كل أونغولمون كيتحمل غير 230V، والريزو فيه 400V، إذن خاص إجباري دير كوبلاج Étoile باش تفرق الطونسيون ومايتحرقش الموطور."
+      },
+      {
+        q: "2. Quel contact auxiliaire du relais thermique coupe la commande en cas de surintensité prolongée ?",
+        options: [
+          "13 - 14",
+          "21 - 22",
+          "95 - 96 (NC)",
+          "97 - 98 (NO)"
+        ],
+        correct: 2,
+        explainFr: "Le contact 95-96 est Normalement Fermé (NC). Lors d'un déclenchement thermique, il s'ouvre et désalimente immédiatement la bobine KM1.",
+        explainDarija: "الكونتاكت 95-96 كيكون مسدود NC ودايز فيه خيط الكوموند، نهار الموطور كيسخن وكيضرب التيرميك كيتحل هاد الكونتاكت ويقطع على البوبينة."
+      },
+      {
+        q: "3. Quel fusible est expressément conçu pour supporter la pointe de démarrage d'un moteur sans fondre ?",
+        options: [
+          "Fusible gG (Usage général)",
+          "Fusible aM (Accompagnement Moteur)",
+          "Fusible ultra-rapide UR",
+          "Fusible verre rapide standard"
+        ],
+        correct: 1,
+        explainFr: "Les cartouches aM (marquage vert) tolèrent 5 à 7 fois le courant nominal pendant plusieurs secondes sans détérioration thermique.",
+        explainDarija: "لي فوزيبل aM لي مكتوبين بالخضر مصنوعين سبيسيال للماطر باش يتحملو داك الكوران العالي ديال الإقلاع بلا ما يطرطقو."
+      },
+      {
+        q: "4. Quelle est la première étape obligatoire du processus de consignation électrique LOTO ?",
+        options: [
+          "Vérification d'Absence de Tension (VAT)",
+          "Pose du cadenas de condamnation",
+          "Séparation physique de la source d'énergie",
+          "Pose des étiquettes de signalisation"
+        ],
+        correct: 2,
+        explainFr: "La séparation de l'ouvrage électrique de ses sources de tension (ouverture sectionneur/disjoncteur avec coupure pleinement apparente) est le premier geste obligatoire.",
+        explainDarija: "أول خطوة هي Séparation يعني كتقطع السيكسيونور ولا الديجونكتور وتفصل الضو فيزيكمون قبل ما تدير الكادنا."
+      }
+    ];
+
+    /* =======================================================================
+       GESTION DE L'APPLICATION (ROUTING, LOCALSTORAGE, ÉTAT)
+       ======================================================================= */
+    let currentModuleId = modulesData[0].id;
+    let completedModules = JSON.parse(localStorage.getItem("elec_completed_modules") || "[]");
+    let quizScore = localStorage.getItem("elec_quiz_score") || null;
+
+    function initApp() {
+      renderModulesList();
+      loadModule(currentModuleId);
+      updateGlobalProgress();
+      registerServiceWorker();
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("open");
+    }
+
+    function renderModulesList() {
+      const listEl = document.getElementById("modules-list");
+      listEl.innerHTML = "";
+
+      modulesData.forEach((mod) => {
+        const isDone = completedModules.includes(mod.id);
+        const li = document.createElement("li");
+        li.className = `module-item ${mod.id === currentModuleId ? 'active' : ''}`;
+        li.id = `nav-${mod.id}`;
+        li.onclick = () => {
+          loadModule(mod.id);
+          if (window.innerWidth <= 860) toggleSidebar();
+        };
+
+        li.innerHTML = `
+          <div style="display:flex; align-items:center; gap: 0.6rem;">
+            <span class="badge-check ${isDone ? 'completed' : ''}">${isDone ? '✓' : ''}</span>
+            <span>${mod.title}</span>
+          </div>
+        `;
+        listEl.appendChild(li);
+      });
+    }
+
+    function filterModules() {
+      const q = document.getElementById("module-search").value.toLowerCase();
+      document.querySelectorAll(".module-item").forEach(item => {
+        const txt = item.textContent.toLowerCase();
+        item.style.display = txt.includes(q) ? "flex" : "none";
+      });
+    }
+
+    function loadModule(id) {
+      currentModuleId = id;
+      const mod = modulesData.find(m => m.id === id);
+      if (!mod) return;
+
+      document.querySelectorAll(".module-item").forEach(el => el.classList.remove("active"));
+      const activeNav = document.getElementById(`nav-${id}`);
+      if (activeNav) activeNav.classList.add("active");
+
+      document.getElementById("current-category").textContent = mod.category;
+      document.getElementById("current-title").textContent = mod.title;
+      document.getElementById("content-display").innerHTML = mod.content;
+
+      updateCompleteBtnState();
+
+      // Initialiser le quiz si on est sur le module 10
+      if (id === "mod-10") {
+        initQuizModule();
+      }
+      // Scroll to top
+      document.getElementById("main-content").scrollTop = 0;
+    }
+
+    function markModuleCompleted() {
+      if (!completedModules.includes(currentModuleId)) {
+        completedModules.push(currentModuleId);
+      } else {
+        completedModules = completedModules.filter(id => id !== currentModuleId);
+      }
+      localStorage.setItem("elec_completed_modules", JSON.stringify(completedModules));
+      renderModulesList();
+      updateCompleteBtnState();
+      updateGlobalProgress();
+    }
+
+    function updateCompleteBtnState() {
+      const isDone = completedModules.includes(currentModuleId);
+      const btnText = document.getElementById("complete-btn-text");
+      if (isDone) {
+        btnText.innerHTML = "✓ Module Assimilé";
+        btnText.parentElement.style.borderColor = "var(--success-green)";
+        btnText.parentElement.style.color = "var(--success-green)";
+      } else {
+        btnText.innerHTML = "◯ Marquer comme Lu";
+        btnText.parentElement.style.borderColor = "var(--electric-blue)";
+        btnText.parentElement.style.color = "var(--electric-blue)";
+      }
+    }
+
+    function updateGlobalProgress() {
+      const total = modulesData.length;
+      const done = completedModules.length;
+      const pct = Math.round((done / total) * 100);
+      document.getElementById("global-progress-bar").style.width = `${pct}%`;
+      document.getElementById("global-progress-text").textContent = `${pct}% (${done}/${total})`;
+    }
+
+    /* =======================================================================
+       MODULE 2 : SIMULATEUR SCHÉMA COMMANDE
+       ======================================================================= */
+    let isCoilEnergized = false;
+    function simulateCircuit(action) {
+      const s2 = document.getElementById("s2-contact");
+      const km1Maintien = document.getElementById("km1-maintien");
+      const coilBox = document.getElementById("coil-box");
+      const wireIn = document.getElementById("wire-coil-in");
+      const wireMaintOut = document.getElementById("wire-maintien-out");
+
+      if (action === 'start') {
+        isCoilEnergized = true;
+        // Animation impulsion poussoir
+        if(s2) {
+          s2.setAttribute("x2", "80");
+          setTimeout(() => { s2.setAttribute("x2", "70"); }, 400);
+        }
+        if(km1Maintien) km1Maintien.setAttribute("x2", "160");
+        if(coilBox) {
+          coilBox.setAttribute("fill", "#00e5ff");
+          coilBox.setAttribute("stroke", "#ffffff");
+        }
+        if(wireIn) wireIn.classList.add("active");
+        if(wireMaintOut) wireMaintOut.classList.add("active");
+      } else if (action === 'stop') {
+        isCoilEnergized = false;
+        if(km1Maintien) km1Maintien.setAttribute("x2", "150");
+        if(coilBox) {
+          coilBox.setAttribute("fill", "#1e293b");
+          coilBox.setAttribute("stroke", "#cbd5e1");
+        }
+        if(wireIn) wireIn.classList.remove("active");
+        if(wireMaintOut) wireMaintOut.classList.remove("active");
+      }
+    }
+
+    /* =======================================================================
+       MODULE 7 : LOGIQUE DIAGNOSTIC DE PANNES
+       ======================================================================= */
+    function runFaultDiagnosis() {
+      const sel = document.getElementById("fault-selector").value;
+      const box = document.getElementById("fault-result-box");
+      if (!sel) {
+        box.style.display = "none";
+        return;
+      }
+
+      box.style.display = "block";
+      let res = "";
+
+      if (sel === "humming") {
+        res = `
+          <h4 style="color:var(--danger-red); margin-bottom:0.4rem;">⚠️ Diagnostic : Marche en Monophasé (Coupure d'une Phase)</h4>
+          <p><strong>Cause probable :</strong> Une des 3 phases est absente (un fusible aM grillé, un pôle du contacteur calaminé ou fil coupé dans la boîte à bornes).</p>
+          <p style="margin-top:0.4rem;"><strong>Mesures Multimètre à faire immédiatement :</strong></p>
+          <ul style="margin-left: 1.2rem; font-size:0.9rem; line-height: 1.7;">
+            <li>Mesurez la tension composée aux bornes du moteur (U1-V1, V1-W1, W1-U1). Vous devez trouver 400V symétrique partout.</li>
+            <li>Si vous trouvez 0V ou 230V sur un couple, remontez vers le contacteur KM1 et le disjoncteur pour localiser le pôle défaillant.</li>
+          </ul>
+        `;
+      } else if (sel === "thermal-trip") {
+        res = `
+          <h4 style="color:var(--safety-orange); margin-bottom:0.4rem;">⚠️ Diagnostic : Surcharge Mécanique ou Mauvais Calibrage</h4>
+          <p><strong>Cause probable :</strong> Le moteur tire plus que son intensité nominale ($I_n$) ou mauvaise ventilation.</p>
+          <p style="margin-top:0.4rem;"><strong>Actions préconisées :</strong></p>
+          <ul style="margin-left: 1.2rem; font-size:0.9rem; line-height: 1.7;">
+            <li>Pince ampèremétrique : Mesurez l'intensité sur chaque phase en charge. Comparez avec la valeur $I_n$ de la plaque signalétique.</li>
+            <li>Vérifiez la liberté de rotation de l'arbre à la main (roulements grippés ou ventilateur encombré).</li>
+            <li>Vérifiez le curseur de réglage du relais thermique : il doit être réglé précisément sur le courant $I_n$ moteur (jamais surévalué au hasard).</li>
+          </ul>
+        `;
+      } else if (sel === "coil-dead") {
+        res = `
+          <h4 style="color:var(--electric-blue); margin-bottom:0.4rem;">⚠️ Diagnostic : Chaîne de Commande Ouverte</h4>
+          <p><strong>Cause probable :</strong> Contact de sécurité déclenché (Arrêt d'urgence verrouillé, thermique ouvert 95-96) ou fusible commande HS.</p>
+          <p style="margin-top:0.4rem;"><strong>Contrôle au multimètre :</strong></p>
+          <ul style="margin-left: 1.2rem; font-size:0.9rem; line-height: 1.7;">
+            <li>Placez la pointe noire sur A2 (Neutre 0V).</li>
+            <li>Testez successivement avec la pointe rouge la présence du 230V sur : 1. Disjoncteur commande -> 2. Contact 95-96 du thermique -> 3. Bouton Arrêt d'urgence -> 4. Bouton Marche.</li>
+          </ul>
+        `;
+      } else if (sel === "motor-smoke") {
+        res = `
+          <h4 style="color:var(--danger-red); margin-bottom:0.4rem;">🚨 Diagnostic : Claquage d'Isolement Bobinage (Court-Circuit Franche)</h4>
+          <p><strong>Procédure d'urgence :</strong> Consignez l'installation (LOTO). Ne tentez aucun réarmement !</p>
+          <ul style="margin-left: 1.2rem; font-size:0.9rem; line-height: 1.7;">
+            <li>Déconnectez la plaque à bornes du moteur.</li>
+            <li>Utilisez un <strong>Mégohmmètre</strong> sous 500V DC : mesurez la résistance d'isolement entre chaque phase et la carcasse métallique (Terre).</li>
+            <li>Si $R_{iso} < 1\,M\Omega$ : le bobinage est grillé (moteur à rebobiner ou à remplacer).</li>
+          </ul>
+        `;
+      }
+      box.innerHTML = res;
+    }
+
+    /* =======================================================================
+       MODULE 9 : CALCULATEUR INDUSTRIEL
+       ======================================================================= */
+    function computeElectricalCalculations() {
+      const P_kW = parseFloat(document.getElementById("calc-power").value) || 0;
+      const U = parseFloat(document.getElementById("calc-volt").value) || 400;
+      const cosPhi = parseFloat(document.getElementById("calc-cos").value) || 0.85;
+      const eff = parseFloat(document.getElementById("calc-eff").value) || 0.88;
+      const L = parseFloat(document.getElementById("calc-length").value) || 20;
+
+      if (P_kW <= 0 || U <= 0) {
+        alert("Veuillez renseigner des grandeurs positives valides.");
+        return;
+      }
+
+      const P_Watts = P_kW * 1000;
+      // In = P / (sqrt(3) * U * cosPhi * eff)
+      const In = P_Watts / (Math.sqrt(3) * U * cosPhi * eff);
+
+      // Section de câble minimale (Cuivre rho=0.018) pour chute < 3%
+      // deltaU = sqrt(3) * I * L * rho / S  => S = sqrt(3) * In * L * 0.018 / deltaU_max (ex 12V pour 400V)
+      const maxDeltaU = U * 0.03; // 3%
+      const rhoCu = 0.018; // ohm.mm²/m
+      let S_calc = (Math.sqrt(3) * In * L * rhoCu) / maxDeltaU;
+      
+      // Standardiser la section selon les jauges normalisées NFC 15-100
+      const standardSections = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95];
+      let recommendedSection = standardSections.find(s => s >= S_calc && s >= getMinThermalSection(In)) || 95;
+
+      // Calibre Disjoncteur magnétothermique recommandé
+      const breakerRating = (In * 1.15).toFixed(1);
+
+      const out = document.getElementById("calc-output");
+      out.style.display = "block";
+      out.innerHTML = `
+        <h4>⚡ Résultats du Dimensionnement Calculé</h4>
+        <div style="font-size:0.95rem; line-height:1.8;">
+          <div>• <strong>Courant nominal absorbé ($I_n$) :</strong> <span style="color:var(--electric-blue); font-weight:bold;">${In.toFixed(2)} A</span></div>
+          <div>• <strong>Plage de réglage relais thermique :</strong> [ ${(In*0.95).toFixed(1)} A — ${(In*1.05).toFixed(1)} A ] (Régler pile à ${In.toFixed(1)} A)</div>
+          <div>• <strong>Calibre Disjoncteur Moteur (ex: Schneider GV2 / GV3) :</strong> Calibre ~ ${breakerRating} A</div>
+          <div>• <strong>Section minimale cuivre préconisée (L=${L}m, &Delta;U &lt; 3%) :</strong> <span style="color:var(--success-green); font-weight:bold;">${recommendedSection} mm²</span></div>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">*Calcul basé sur conducteur cuivre multi-conducteurs posé sur chemin de câbles perforé sous température ambiante de 35°C.</div>
+        </div>
+      `;
+    }
+
+    function getMinThermalSection(In) {
+      if (In <= 14) return 1.5;
+      if (In <= 20) return 2.5;
+      if (In <= 30) return 4;
+      if (In <= 40) return 6;
+      if (In <= 55) return 10;
+      if (In <= 75) return 16;
+      if (In <= 100) return 25;
+      return 35;
+    }
+
+    /* =======================================================================
+       MODULE 10 : QUIZ INTERACTIF
+       ======================================================================= */
+    let currentQuizAnswers = {};
+
+    function initQuizModule() {
+      const container = document.getElementById("quiz-wrapper");
+      if (!container) return;
+      container.innerHTML = "";
+
+      quizQuestions.forEach((item, qIdx) => {
+        const qCard = document.createElement("div");
+        qCard.style.marginBottom = "1.5rem";
+        qCard.innerHTML = `
+          <div style="font-weight:600; color:#fff; margin-bottom:0.6rem;">${item.q}</div>
+          <div id="q-opts-${qIdx}">
+            ${item.options.map((opt, oIdx) => `
+              <div class="quiz-option" id="opt-${qIdx}-${oIdx}" onclick="selectQuizAnswer(${qIdx}, ${oIdx})">
+                <span>${opt}</span>
+                <span id="badge-${qIdx}-${oIdx}"></span>
+              </div>
+            `).join('')}
+          </div>
+          <div id="q-exp-${qIdx}" style="display:none; margin-top:0.6rem;"></div>
+        `;
+        container.appendChild(qCard);
+      });
+    }
+
+    function selectQuizAnswer(qIdx, selectedOptIdx) {
+      if (currentQuizAnswers[qIdx] !== undefined) return; // Empêcher modification après réponse
+      currentQuizAnswers[qIdx] = selectedOptIdx;
+
+      const q = quizQuestions[qIdx];
+      const isCorrect = selectedOptIdx === q.correct;
+      const optEl = document.getElementById(`opt-${qIdx}-${selectedOptIdx}`);
+      const expEl = document.getElementById(`q-exp-${qIdx}`);
+
+      if (isCorrect) {
+        optEl.classList.add("correct");
+        document.getElementById(`badge-${qIdx}-${selectedOptIdx}`).innerHTML = "✅";
+      } else {
+        optEl.classList.add("wrong");
+        document.getElementById(`badge-${qIdx}-${selectedOptIdx}`).innerHTML = "❌";
+        // Révéler la bonne option
+        document.getElementById(`opt-${qIdx}-${q.correct}`).classList.add("correct");
+      }
+
+      expEl.style.display = "block";
+      expEl.innerHTML = `
+        <div style="font-size:0.85rem; padding:0.6rem; border-radius:4px; background:rgba(255,255,255,0.05); margin-bottom:0.4rem;">
+          <strong>Explication technique :</strong> ${q.explainFr}
+        </div>
+        <div class="darija-box" style="margin: 0.3rem 0; padding: 0.6rem;">
+          <div class="darija-title" style="font-size:0.85rem;">💡 توضيح بالدارجة</div>
+          <div class="darija-text" style="font-size:0.85rem;">${q.explainDarija}</div>
+        </div>
+      `;
+
+      checkQuizFinished();
+    }
+
+    function checkQuizFinished() {
+      if (Object.keys(currentQuizAnswers).length === quizQuestions.length) {
+        let score = 0;
+        quizQuestions.forEach((q, idx) => {
+          if (currentQuizAnswers[idx] === q.correct) score++;
+        });
+
+        localStorage.setItem("elec_quiz_score", `${score}/${quizQuestions.length}`);
+        const sum = document.getElementById("quiz-summary");
+        sum.style.display = "block";
+        sum.innerHTML = `
+          <h3 style="color:var(--electric-blue); margin-top:0;">Résultat Final : ${score} / ${quizQuestions.length}</h3>
+          <p>${score >= 3 ? "🏆 Félicitations ! Vous possédez les bases requises pour intervenir en sécurité en atelier électrique." : "⚠️ Des révisions sont recommandées sur les fondamentaux des moteurs et protections."}</p>
+        `;
+      }
+    }
+
+    /* =======================================================================
+       SERVICE WORKER OFFLINE (PWA)
+       ======================================================================= */
+    function registerServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        const swCode = `
+          const CACHE_NAME = 'industrial-electric-v1';
+          self.addEventListener('install', (e) => {
+            self.skipWaiting();
+          });
+          self.addEventListener('activate', (e) => {
+            e.waitUntil(clients.claim());
+          });
+          self.addEventListener('fetch', (e) => {
+            e.respondWith(
+              fetch(e.request).catch(() => caches.match(e.request))
+            );
+          });
+        `;
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl).catch(err => {
+          console.log('SW registration note:', err);
+        });
+      }
+    }
+
+    // Lancement au chargement du DOM
+    window.addEventListener("DOMContentLoaded", initApp);
+  </script>
+</body>
+</html>
